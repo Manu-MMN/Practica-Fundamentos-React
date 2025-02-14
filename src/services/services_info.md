@@ -1,0 +1,1 @@
+Esta carpeta se utilizará para almacenar funciones o módulos relacionados con llamadas a APIs y otros servicios (por ejemplo, funciones para interactuar con el backend de Nodepop).

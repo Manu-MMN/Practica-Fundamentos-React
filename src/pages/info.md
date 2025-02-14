@@ -1,0 +1,1 @@
+Esta carpeta almacenará los componentes de página que representarán cada vista completa de la aplicación (por ejemplo, LoginPage, AdvertsPage, etc.).

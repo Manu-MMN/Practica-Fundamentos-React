@@ -1,0 +1,1 @@
+En esta carpeta almacenaremos funciones auxiliares o utilidades que pueden ser reutilizadas en varias partes de la aplicación (por ejemplo, formateo de fechas, validaciones, etc.).

@@ -1,0 +1,1 @@
+Aquí almacenaremos archivos CSS globales o módulos CSS específicos para los componentes.

@@ -1,0 +1,1 @@
+Esta carpeta se utilizará para almacenar los contextos de React, como por ejemplo el contexto de autenticación que nos ayudará a gestionar el estado global y las rutas protegidas.
