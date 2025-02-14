@@ -5,10 +5,13 @@ import PaginaAnuncios from "./pages/PaginaAnuncios";
 import PaginaDetalleAnuncio from "./pages/PaginaDetalleAnuncio";
 import PaginaNuevoAnuncio from "./pages/PaginaNuevoAnuncio";
 import PaginaNoEncontrada from "./pages/PaginaNoEncontrada";
+import Navegacion from "./components/Navegacion";
 
 const Rutas = () =>{
     return (
 <BrowserRouter>
+
+<Navegacion/>
 <Routes>
 <Route path="/login" element={<PaginaLogin />} />
 <Route path="/anuncios" element={<PaginaAnuncios/>} />
