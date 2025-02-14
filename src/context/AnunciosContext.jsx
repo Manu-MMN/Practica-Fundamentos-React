@@ -13,9 +13,12 @@ export const AnunciosProvider = ({ children }) => {
 
   // Función para agregar un anuncio
   const agregarAnuncio = (nuevoAnuncio) => {
-    setAnuncios((prevAnuncios) => [...prevAnuncios, nuevoAnuncio]);
-  };
-
+    setAnuncios((prevAnuncios) => {
+        const nuevosAnuncios = [...prevAnuncios, nuevoAnuncio];
+        console.log("Anuncios actualizados:", nuevosAnuncios);
+        return nuevosAnuncios;
+    });
+};
   // Función para eliminar un anuncio
   const eliminarAnuncio = (id) => {
     setAnuncios((prevAnuncios) => prevAnuncios.filter((anuncio) => anuncio.id !== id));
