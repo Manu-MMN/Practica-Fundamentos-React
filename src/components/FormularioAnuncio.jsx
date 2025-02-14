@@ -1,7 +1,7 @@
 import React, { useState, useContext } from "react";
 import { AnunciosContext } from "../context/AnunciosContext";
 
-const FormularioAnuncio = () => {
+const FormularioAnuncio = ({onAgregado}) => {
   const { agregarAnuncio } = useContext(AnunciosContext);
   const [titulo, setTitulo] = useState("");
   const [descripcion, setDescripcion] = useState("");
@@ -11,11 +11,17 @@ const FormularioAnuncio = () => {
   const manejarEnvio = (e) => {
     e.preventDefault();
     if (titulo && descripcion && precio > 0) {
-      agregarAnuncio({ id: Date.now(), titulo, descripcion, precio: Number(precio) });
+      agregarAnuncio({
+        id: Date.now(),
+        titulo,
+        descripcion,
+        precio: Number(precio),
+      });
       setTitulo("");
       setDescripcion("");
       setPrecio("");
       setError("");
+      if (onAgregado) onAgregado();
     } else {
       setError("Por favor, completa todos los campos con datos válidos.");
     }
