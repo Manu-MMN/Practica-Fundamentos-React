@@ -1,12 +1,14 @@
-import React from "react";
+import React, {useContext} from "react";
 import { useNavigate } from "react-router-dom";
+import { AuthContext } from "../context/AuthContext";
 
 const LogoutButton = () => {
   const navigate = useNavigate();
+  const { logout } = useContext(AuthContext);
 
   const handleLogout = () => {
     // Eliminar la información de autenticación del localStorage
-    localStorage.removeItem("usuarioLogado");
+    logout();
     // Redirigir al usuario a la página de login
     navigate("/login", { replace: true });
   };

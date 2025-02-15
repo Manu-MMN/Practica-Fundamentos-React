@@ -1,8 +1,14 @@
-import React from "react";
+import React, { useContext, useState} from "react";
 import { useNavigate } from "react-router-dom";
+import { AuthContext } from "../context/AuthContext";
+
+
 
 const PaginaLogin = () => {
   const navigate = useNavigate();
+
+  const {login} = useContext(AuthContext);
+
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
   const [recordar, setRecordar] = React.useState(false);
@@ -12,11 +18,8 @@ const PaginaLogin = () => {
     e.preventDefault();
 
     if (email && password) {
-      console.log("intento de login", { email, password, recordar });
-
-      if (recordar) {
-        localStorage.setItem("usuarioLogado", JSON.stringify({ email }));
-      }
+      const userData = {email};
+      login(userData, recordar);
       navigate("/anuncios");
     } else {
       setError("Por favor, completa todos los campos con datos válidos.");

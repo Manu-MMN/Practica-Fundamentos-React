@@ -1,11 +1,11 @@
-import React from "react";
+import React, {useContext} from "react";
 import { NavLink } from "react-router-dom";
 import LogoutButton from "./LogoutButton";
+import { AuthContext } from "../context/AuthContext";
 
 const Navegacion = () => {
   // Comprobamos si hay un usuario autenticado en el localStorage.
-  const usuarioLogado = localStorage.getItem("usuarioLogado");
-
+  const { usuario } = useContext(AuthContext);
   return (
     <nav>
       <ul>
@@ -24,7 +24,7 @@ const Navegacion = () => {
             Iniciar Sesión
           </NavLink>
         </li>
-        {usuarioLogado && (
+        {usuario && (
           <li>
             <LogoutButton />
           </li>
