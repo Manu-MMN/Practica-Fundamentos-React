@@ -1,50 +1,53 @@
-import React, { createContext, useState } from "react";
-import axios from "axios"
-import { use } from "react";
+import React, { createContext, useState, useEffect } from "react";
+import axios from "axios";
 
-// Creamos el contexto
 export const AnunciosContext = createContext();
 
-// Creamos el proveedor del contexto
 export const AnunciosProvider = ({ children }) => {
-  // Estado inicial, el mismo que tenías en App.jsx
-  const [anuncios, setAnuncios] = useState([
-    { id: 1, titulo: "Anuncio 1", descripcion: "Descripción del anuncio 1", precio: 100 },
-    { id: 2, titulo: "Anuncio 2", descripcion: "Descripción del anuncio 2", precio: 200 },
-  ]);
-  const obtenerAnuncios = async () => {
-    try {
-      const token = localStorage.getItem("token")|| sessionStorage.getItem("token");
-      const respuesta = await axios.get("http://localhost:3001/api/v1/adverts", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      setAnuncios(respuesta.data);
-    } catch (error) {
-      console.error("Error al obtener los anuncios:", error);
-    }
+    const [anuncios, setAnuncios] = useState([]);
+    const [loading, setLoading] = useState(true); // Nuevo estado para controlar la carga
+
+    const obtenerAnuncios = async () => {
+        try {
+            const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+            console.log("Token:", token);
+
+            const respuesta = await axios.get("http://localhost:3001/api/v1/adverts", {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+
+            console.log("Respuesta del backend:", respuesta);
+
+            setAnuncios(respuesta.data);
+            setLoading(false); // La carga ha terminado
+
+        } catch (error) {
+            console.error("Error al obtener los anuncios:", error);
+            setLoading(false); // La carga ha terminado, incluso con error
+        }
+    };
+
     useEffect(() => {
-      obtenerAnuncios();
+        obtenerAnuncios();
     }, []);
-  }
 
-  // Función para agregar un anuncio
-  const agregarAnuncio = (nuevoAnuncio) => {
-    setAnuncios((prevAnuncios) => {
-        const nuevosAnuncios = [...prevAnuncios, nuevoAnuncio];
-        console.log("Anuncios actualizados:", nuevosAnuncios);
-        return nuevosAnuncios;
-    });
-};
-  // Función para eliminar un anuncio
-  const eliminarAnuncio = (id) => {
-    setAnuncios((prevAnuncios) => prevAnuncios.filter((anuncio) => anuncio.id !== id));
-  };
+    useEffect(() => {
+        console.log("Estado 'anuncios' actualizado:", anuncios);
+    }, [anuncios]);
 
-  return (
-    <AnunciosContext.Provider value={{ anuncios, agregarAnuncio, eliminarAnuncio }}>
-      {children}
-    </AnunciosContext.Provider>
-  );
+    const agregarAnuncio = (nuevoAnuncio) => {
+        setAnuncios((prevAnuncios) => ([...prevAnuncios, nuevoAnuncio])); // Corrección en agregarAnuncio
+    };
+
+    const eliminarAnuncio = (id) => {
+        setAnuncios((prevAnuncios) => prevAnuncios.filter((anuncio) => anuncio.id !== id));
+    };
+
+    return (
+        <AnunciosContext.Provider value={{ anuncios, agregarAnuncio, eliminarAnuncio, loading }}> {/* Pasamos loading al contexto */}
+            {children}
+        </AnunciosContext.Provider>
+    );
 };
