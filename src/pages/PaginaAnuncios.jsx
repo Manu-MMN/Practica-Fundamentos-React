@@ -1,12 +1,10 @@
 import React, { useContext } from "react";
 import Anuncio from "../components/Anuncio";
 import { AnunciosContext } from "../context/AnunciosContext";
+import { Link } from "react-router-dom"; // Importa Link
 
 const PaginaAnuncios = () => {
     const { anuncios, eliminarAnuncio, loading } = useContext(AnunciosContext);
-
-    console.log("Loading:", loading);
-    console.log("Anuncios en PaginaAnuncios:", anuncios);
 
     if (loading) {
         return <div>Cargando anuncios...</div>;
@@ -21,7 +19,11 @@ const PaginaAnuncios = () => {
             <h1>Anuncios</h1>
             <div>
                 {anuncios.map((anuncio) => (
-                    <Anuncio key={anuncio.id} anuncio={anuncio} eliminarAnuncio={eliminarAnuncio} /> // Usamos anuncio.id como key
+                    <div key={anuncio.id}> {/* Envuelve cada anuncio en un div con key */}
+                        <Link to={`/anuncios/${anuncio.id}`}> {/* Link a la página de detalle */}
+                            <Anuncio anuncio={anuncio} eliminarAnuncio={eliminarAnuncio} />
+                        </Link>
+                    </div>
                 ))}
             </div>
         </div>
