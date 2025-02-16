@@ -1,4 +1,6 @@
 import React, { createContext, useState } from "react";
+import axios from "axios"
+import { use } from "react";
 
 // Creamos el contexto
 export const AnunciosContext = createContext();
@@ -10,6 +12,22 @@ export const AnunciosProvider = ({ children }) => {
     { id: 1, titulo: "Anuncio 1", descripcion: "Descripción del anuncio 1", precio: 100 },
     { id: 2, titulo: "Anuncio 2", descripcion: "Descripción del anuncio 2", precio: 200 },
   ]);
+  const obtenerAnuncios = async () => {
+    try {
+      const token = localStorage.getItem("token")|| sessionStorage.getItem("token");
+      const respuesta = await axios.get("http://localhost:3001/api/v1/adverts", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setAnuncios(respuesta.data);
+    } catch (error) {
+      console.error("Error al obtener los anuncios:", error);
+    }
+    useEffect(() => {
+      obtenerAnuncios();
+    }, []);
+  }
 
   // Función para agregar un anuncio
   const agregarAnuncio = (nuevoAnuncio) => {
