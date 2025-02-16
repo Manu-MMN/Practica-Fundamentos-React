@@ -1,26 +1,32 @@
-import React, { useContext, useState} from "react";
+import React, { useContext, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 
-
-
 const PaginaLogin = () => {
   const navigate = useNavigate();
+  const { usuario, login } = useContext(AuthContext);
 
-  const {login} = useContext(AuthContext);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [recordar, setRecordar] = useState(false);
+  const [error, setError] = useState("");
 
-  const [email, setEmail] = React.useState("");
-  const [password, setPassword] = React.useState("");
-  const [recordar, setRecordar] = React.useState(false);
-  const [error, setError] = React.useState("");
+  useEffect(() => {
+    if (usuario) {
+      navigate("/anuncios");
+    }
+  }, [usuario, navigate]);
 
-  const manejarLogin = (e) => {
+  const manejarLogin = async (e) => {
     e.preventDefault();
+    setError("");
 
     if (email && password) {
-      const userData = {email};
-      login(userData, recordar);
-      navigate("/anuncios");
+      const userData = { email, password };
+      const loginExitoso = await login(userData, recordar);
+      if (!loginExitoso) {
+        setError("Credenciales incorrectas. Por favor, inténtalo de nuevo.");
+      }
     } else {
       setError("Por favor, completa todos los campos con datos válidos.");
     }
@@ -50,18 +56,18 @@ const PaginaLogin = () => {
             onChange={(e) => setPassword(e.target.value)}
             required
           />
-          <div>
-            <label>
-              <input
-                type="Checkbox"
-                checked={recordar}
-                onChange={(e) => setRecordar(e.target.checked)}
-              />
-              Recordar Contraseña
-            </label>
-          </div>
-          <button type="submit">Iniciar Sesión</button>
         </div>
+        <div>
+          <label>
+            <input
+              type="checkbox"
+              checked={recordar}
+              onChange={(e) => setRecordar(e.target.checked)}
+            />
+            Recordar Contraseña
+          </label>
+        </div>
+        <button type="submit">Iniciar Sesión</button>
       </form>
     </div>
   );

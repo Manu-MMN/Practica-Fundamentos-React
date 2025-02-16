@@ -1,35 +1,70 @@
-import React, { createContext, useState } from "react";
+import React, { createContext, useState, useEffect } from "react";
+import axios from "axios";
 
 export const AuthContext = createContext();
 
-export const AuthProvider = ({ children}) =>{
+export const AuthProvider = ({ children }) => {
+  const [usuario, setUsuario] = useState(null);
 
-    const [usuario, setUsuario] = useState(() =>{
-        const storedUser = localStorage.getItem("usuarioLogado");
-        return storedUser ? JSON.parse(storedUser) : null;
-    });
+  useEffect(() => {
+    const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+    if (token) {
+      // Si hay un token, obtener los datos del usuario
+      axios.get("http://localhost:3001/api/auth/me", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then(response => {
+        setUsuario(response.data);
+      })
+      .catch(error => {
+        console.error("Error al obtener los datos del usuario:", error);
+        // Si hay un error, eliminar el token almacenado
+        localStorage.removeItem("token");
+        sessionStorage.removeItem("token");
+      });
+    }
+  }, []);
 
-    //con esto nos logeamos
-    const login = (userData, recordar) =>{
-        setUsuario(userData);
-        if (recordar) {
-            localStorage.setItem("usuarioLogado", JSON.stringify(userData));
-        }
-    };
+  const login = async (userData, recordar) => {
+    try {
+      const responseLogin = await axios.post("http://localhost:3001/api/auth/login", {
+        email: userData.email,
+        password: userData.password,
+      });
+      const token = responseLogin.data.accessToken;
+      const responseMe = await axios.get("http://localhost:3001/api/auth/me", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      const user = responseMe.data;
+      setUsuario(user);
+      localStorage.setItem("usuarioLogado", JSON.stringify(user));
+      console.log(usuario)
+      if (recordar) {
+        localStorage.setItem("token", token);
+      } else {
+        sessionStorage.setItem("token", token);
+      }
+      return true;
+    } catch (error) {
+      console.error("Error al iniciar sesión:", error);
+      return false;
+    }
+  };
 
-//con esto nos deslogeamos
+  const logout = () => {
+    setUsuario(null);
+    localStorage.removeItem("token");
+    sessionStorage.removeItem("token");
+    localStorage.removeItem("usuarioLogado");
+  };
 
-    const logout = () =>{
-        setUsuario(null);
-        localStorage.removeItem("usuarioLogado");
-    };
-
-    return (
-        <AuthContext.Provider value={{ usuario, login, logout }}>
-            {children}
-        </AuthContext.Provider>
-    )
-
-
-
-}
+  return (
+    <AuthContext.Provider value={{ usuario, login, logout }}>
+      {children}
+    </AuthContext.Provider>
+  );
+};
