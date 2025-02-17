@@ -5,7 +5,7 @@ export const AnunciosContext = createContext();
 
 export const AnunciosProvider = ({ children }) => {
     const [anuncios, setAnuncios] = useState([]);
-    const [loading, setLoading] = useState(true); // Nuevo estado para controlar la carga
+    const [loading, setLoading] = useState(true);
 
     const obtenerAnuncios = async () => {
         try {
@@ -21,11 +21,11 @@ export const AnunciosProvider = ({ children }) => {
             console.log("Respuesta del backend:", respuesta);
 
             setAnuncios(respuesta.data);
-            setLoading(false); // La carga ha terminado
+            setLoading(false);
 
         } catch (error) {
             console.error("Error al obtener los anuncios:", error);
-            setLoading(false); // La carga ha terminado, incluso con error
+            setLoading(false);
         }
     };
 
@@ -37,8 +37,21 @@ export const AnunciosProvider = ({ children }) => {
         console.log("Estado 'anuncios' actualizado:", anuncios);
     }, [anuncios]);
 
-    const agregarAnuncio = (nuevoAnuncio) => {
-        setAnuncios((prevAnuncios) => ([...prevAnuncios, nuevoAnuncio])); // Corrección en agregarAnuncio
+    const agregarAnuncio = async (nuevoAnuncio) => {
+        try {
+            const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+            const respuesta = await axios.post("http://localhost:3001/api/v1/adverts", nuevoAnuncio, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    "Content-Type": "multipart/form-data",
+                },
+            });
+            console.log("Anuncio creado en el backend:", respuesta.data);
+            setAnuncios((prevAnuncios) => [...prevAnuncios, respuesta.data]);
+        } catch (error) {
+            console.error("error al crear el anuncio:", error);
+            console.log("Respuesta completa:", error.response)
+        }
     };
 
     const eliminarAnuncio = (id) => {
@@ -46,8 +59,10 @@ export const AnunciosProvider = ({ children }) => {
     };
 
     return (
-        <AnunciosContext.Provider value={{ anuncios, agregarAnuncio, eliminarAnuncio, loading }}> {/* Pasamos loading al contexto */}
+        <AnunciosContext.Provider value={{ anuncios, agregarAnuncio, eliminarAnuncio, loading }}>
             {children}
         </AnunciosContext.Provider>
     );
 };
+
+export default AnunciosProvider;
