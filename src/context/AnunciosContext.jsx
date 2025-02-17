@@ -54,9 +54,24 @@ export const AnunciosProvider = ({ children }) => {
         }
     };
 
-    const eliminarAnuncio = (id) => {
-        setAnuncios((prevAnuncios) => prevAnuncios.filter((anuncio) => anuncio.id !== id));
-    };
+    const eliminarAnuncio = async (borrarAnuncio) => {
+      try {
+          const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+          const respuesta = await axios.delete(`http://localhost:3001/api/v1/adverts/${borrarAnuncio}`, {
+              headers: {
+                  Authorization: `Bearer ${token}`,
+              },
+          });
+  
+          // Actualizar el estado anuncios después de la petición DELETE para no tener que recargar la página para ver el resultado
+          setAnuncios((prevAnuncios) => prevAnuncios.filter((anuncio) => anuncio.id !== borrarAnuncio));
+  
+          console.log("Anuncio eliminado del backend:", respuesta.data); 
+      } catch (error) {
+          console.error("Error al eliminar el anuncio:", error);
+          console.log("Respuesta completa:", error.response); 
+      }
+  };
 
     return (
         <AnunciosContext.Provider value={{ anuncios, agregarAnuncio, eliminarAnuncio, loading }}>
