@@ -1,80 +1,68 @@
-import React, { createContext, useState, useEffect } from "react";
+import React, { createContext, useState, useContext } from "react";
 import axios from "axios";
+import { API_ENDPOINTS } from '../config/api';
+import { AuthContext } from './AuthContext';
 
 export const AnunciosContext = createContext();
 
 export const AnunciosProvider = ({ children }) => {
     const [anuncios, setAnuncios] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
+    const { getAuthorizationHeader } = useContext(AuthContext);
 
     const obtenerAnuncios = async () => {
+        if (loading) return;
+        setLoading(true);
+        
         try {
-            const token = localStorage.getItem("token") || sessionStorage.getItem("token");
-            console.log("Token:", token);
-
-            const respuesta = await axios.get("http://localhost:3001/api/v1/adverts", {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
+            const respuesta = await axios.get(API_ENDPOINTS.adverts.base, {
+                headers: { Authorization: getAuthorizationHeader() }
             });
-
-            console.log("Respuesta del backend:", respuesta);
-
             setAnuncios(respuesta.data);
-            setLoading(false);
-
+            return respuesta.data;
         } catch (error) {
-            console.error("Error al obtener los anuncios:", error);
+            setAnuncios([]);
+            throw error;
+        } finally {
             setLoading(false);
         }
     };
 
-    useEffect(() => {
-        obtenerAnuncios();
-    }, []);
-
-    useEffect(() => {
-        console.log("Estado 'anuncios' actualizado:", anuncios);
-    }, [anuncios]);
-
-    const agregarAnuncio = async (nuevoAnuncio) => {
+    const agregarAnuncio = async (formData) => {
         try {
-            const token = localStorage.getItem("token") || sessionStorage.getItem("token");
-            const respuesta = await axios.post("http://localhost:3001/api/v1/adverts", nuevoAnuncio, {
+            const respuesta = await axios.post(API_ENDPOINTS.adverts.base, formData, {
                 headers: {
-                    Authorization: `Bearer ${token}`,
+                    Authorization: getAuthorizationHeader(),
                     "Content-Type": "multipart/form-data",
-                },
+                }
             });
-            console.log("Anuncio creado en el backend:", respuesta.data);
-            setAnuncios((prevAnuncios) => [...prevAnuncios, respuesta.data]);
+            return respuesta.data;
         } catch (error) {
-            console.error("error al crear el anuncio:", error);
-            console.log("Respuesta completa:", error.response)
+            throw error;
         }
     };
 
-    const eliminarAnuncio = async (borrarAnuncio) => {
-      try {
-          const token = localStorage.getItem("token") || sessionStorage.getItem("token");
-          const respuesta = await axios.delete(`http://localhost:3001/api/v1/adverts/${borrarAnuncio}`, {
-              headers: {
-                  Authorization: `Bearer ${token}`,
-              },
-          });
-  
-          // Actualizar el estado anuncios después de la petición DELETE para no tener que recargar la página para ver el resultado
-          setAnuncios((prevAnuncios) => prevAnuncios.filter((anuncio) => anuncio.id !== borrarAnuncio));
-  
-          console.log("Anuncio eliminado del backend:", respuesta.data); 
-      } catch (error) {
-          console.error("Error al eliminar el anuncio:", error);
-          console.log("Respuesta completa:", error.response); 
-      }
-  };
+    const eliminarAnuncio = async (id) => {
+        try {
+            await axios.delete(API_ENDPOINTS.adverts.detail(id), {
+                headers: { Authorization: getAuthorizationHeader() }
+            });
+            setAnuncios(prevAnuncios => 
+                prevAnuncios.filter(anuncio => anuncio.id !== id)
+            );
+        } catch (error) {
+            throw error;
+        }
+    };
 
     return (
-        <AnunciosContext.Provider value={{ anuncios, agregarAnuncio, eliminarAnuncio, loading }}>
+        <AnunciosContext.Provider value={{ 
+            anuncios, 
+            loading,
+            obtenerAnuncios,
+            agregarAnuncio, 
+            eliminarAnuncio
+        }}>
             {children}
         </AnunciosContext.Provider>
     );
